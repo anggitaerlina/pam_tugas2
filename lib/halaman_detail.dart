@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:pam_tugas2/data_artikel.dart';
+import 'package:pam_tugas2/data_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HalamaDetail extends StatefulWidget {
-  final DataPlanet planet;
+class HalamanDetail extends StatefulWidget {
+  final DataRekomendasi menu;
 
-  const HalamaDetail({super.key, required this.planet});
+  const HalamanDetail({super.key, required this.menu});
 
   @override
-  State<HalamaDetail> createState() => _HalamaDetailState();
+  State<HalamanDetail> createState() => _HalamaDetailState();
 }
 
-class _HalamaDetailState extends State<HalamaDetail> {
-  late bool _isBookmarked = false;
+class _HalamaDetailState extends State<HalamanDetail> {
 
   void showInSnackBar(String value, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -27,8 +26,9 @@ class _HalamaDetailState extends State<HalamaDetail> {
   }
 
   void _openMapLink(String link) async {
-    if (await canLaunch(link)) {
-      await launch(link);
+    final Uri uri = Uri.parse(link);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
     } else {
       throw 'Tidak dapat membuka: $link';
     }
@@ -36,73 +36,57 @@ class _HalamaDetailState extends State<HalamaDetail> {
 
   @override
   Widget build(BuildContext context) {
-    String diameter = widget.planet.diameter.toString();
+    String diameter = widget.menu.nama.toString();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Data Planet",
+          "Detail",
           style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.w500, fontSize: 18),
+              color: Colors.pinkAccent, fontWeight: FontWeight.w500, fontSize: 18),
         ),
-        backgroundColor: Colors.blue[400],
+        backgroundColor: const Color(0xFFD306D),
+        foregroundColor: Color.fromARGB(255, 255, 255, 255),
         centerTitle: true,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
-            color: Colors.white,
+            color: Colors.pinkAccent,
           ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(_isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                  color: Colors.pink),
-              onPressed: () {
-                setState(() {
-                  _isBookmarked = !_isBookmarked;
-                });
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(widget.menu.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: Colors.pink),
+            onPressed: () {
+              setState(() {
+                widget.menu.isFavorite = !widget.menu.isFavorite;
+              });
+              if (widget.menu.isFavorite == false) {
+                showInSnackBar("Berhasil Menghapus Favorite", Colors.red);
+              }
 
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(_isBookmarked ? 'Ditambahkan ke Favorit' : 'Dihapus dari Favorit'),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text('OK'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-
-                if (!_isBookmarked) {
-                  showInSnackBar("Berhasil Menghapus Favorite", Colors.red);
-                } else {
-                  showInSnackBar("Berhasil Menambahkan Favorite", Colors.blue);
-                }
-              },
-            )
-          ]
-
+              if (widget.menu.isFavorite == true) {
+                showInSnackBar("Berhasil Menambahkan Favorite", Colors.blue);
+              }
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _launcurl(widget.planet.imageLink);
+          _launcurl(widget.menu.imageLink);
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        backgroundColor: Colors.blue[400],
+        backgroundColor: const Color(0xFFD306D),
         elevation: 0,
         child: const Icon(
-          Icons.preview,
-          color: Colors.white,
+          Icons.remove_red_eye,
+          color: Colors.pinkAccent,
         ),
       ),
       body: SingleChildScrollView(
@@ -111,12 +95,12 @@ class _HalamaDetailState extends State<HalamaDetail> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Hero(
-              tag: widget.planet.imageLink,
+              tag: widget.menu.imageLink,
               child: SizedBox(
                 height: MediaQuery.of(context).size.height / 2,
                 width: MediaQuery.of(context).size.width,
                 child: Image.network(
-                  widget.planet.imageLink,
+                  widget.menu.imageLink,
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -140,46 +124,8 @@ class _HalamaDetailState extends State<HalamaDetail> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.planet.nama,
-                    textAlign: TextAlign.justify,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Ciri Planet",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    widget.planet.ciri,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    "Diameter",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
+                  Center(
+                    child: Text(
                     diameter,
                     textAlign: TextAlign.left,
                     style: const TextStyle(
@@ -188,6 +134,7 @@ class _HalamaDetailState extends State<HalamaDetail> {
                       color: Colors.black,
                     ),
                   ),
+            ),
 
                   const SizedBox(height: 14),
                   const Text(
@@ -200,7 +147,7 @@ class _HalamaDetailState extends State<HalamaDetail> {
                     ),
                   ),
                   Text(
-                    widget.planet.deskripsi,
+                    widget.menu.deskripsi,
                     textAlign: TextAlign.left,
                     style: const TextStyle(
                       fontWeight: FontWeight.normal,
@@ -209,11 +156,17 @@ class _HalamaDetailState extends State<HalamaDetail> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      _openMapLink(widget.planet.link);
-                    },
-                    child: Text("Lihat Link Artikel"),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _openMapLink(widget.menu.deskripsi);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: const Color(0xFFD306D), // Button background color
+                        onPrimary: Colors.white, // Text color when the button is enabled
+                      ),
+                      child: Text("Lihat Link Rekomendasi"),
+                    ),
                   ),
                 ],
               ),

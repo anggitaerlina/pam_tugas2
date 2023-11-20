@@ -1,94 +1,33 @@
 import 'package:flutter/material.dart';
-import 'halaman_utama.dart';
+import 'package:pam_tugas2/favorite.dart';
+import 'package:pam_tugas2/homepage.dart';
+import 'package:pam_tugas2/menu.dart';
+import 'package:pam_tugas2/team.dart';
 
 void main() {
-  runApp(LoginApp());
+  runApp(const MyApp());
 }
 
-class LoginApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginPage(),
-    );
-  }
-}
-
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Login App'),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextFormField(
-              controller: usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-              ),
-            ),
-            SizedBox(height: 20),
-            TextFormField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-              ),
-              obscureText: true, // Hide the password input
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Add your login logic here
-                String username = usernameController.text;
-                String password = passwordController.text;
+      home: HomePage(),
+      routes: {
+        '/home': (context) => const HomePage(),
+        '/team': (context) => Team(),
+        '/menu': (context) => const HalamanUtama(),
+        '/favorite': (context) => const FavoritePage(),
 
-                if (username == 'user' && password == 'pas') {
-                  // Login successful, navigate to the HalamanUtama screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HalamanUtama(), // Navigate to HalamanUtama
-                    ),
-                  );
-                } else {
-                  // Display an error message for incorrect credentials
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Error'),
-                        content: Text('Incorrect username or password.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: Text('Login'),
-            ),
-          ],
-        ),
-      ),
+      },
     );
   }
 }
